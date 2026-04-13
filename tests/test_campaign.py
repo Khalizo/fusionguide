@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
-from fusionbal.campaign import FusionCampaign
-from fusionbal.spaces.vanadium_alloy import VanadiumAlloySpace
-from fusionbal.targets.mechanical import YieldStrengthTarget
+from fusionguide.campaign import FusionCampaign
+from fusionguide.spaces.vanadium_alloy import VanadiumAlloySpace
+from fusionguide.targets.mechanical import YieldStrengthTarget
 
 
 def test_campaign_can_recommend():
@@ -49,13 +49,13 @@ def test_campaign_serializes_to_json(tmp_path):
 
 
 def test_physics_prior_predicts_positive_hardening():
-    from fusionbal.priors.physics_priors import RadiationHardeningPrior
+    from fusionguide.priors.physics_priors import RadiationHardeningPrior
     prior = RadiationHardeningPrior()
     delta = prior.predict_delta_yield(dose_dpa=5.0, temperature_C=300.0)
     assert delta > 0
 
 def test_physics_prior_higher_dose_higher_hardening():
-    from fusionbal.priors.physics_priors import RadiationHardeningPrior
+    from fusionguide.priors.physics_priors import RadiationHardeningPrior
     prior = RadiationHardeningPrior()
     delta_low = prior.predict_delta_yield(dose_dpa=1.0, temperature_C=300.0)
     delta_high = prior.predict_delta_yield(dose_dpa=10.0, temperature_C=300.0)
@@ -63,7 +63,7 @@ def test_physics_prior_higher_dose_higher_hardening():
 
 
 def test_synthetic_vanadium_prior_has_correct_columns():
-    from fusionbal.priors.fusionmatdb import load_prior_synthetic_vanadium
+    from fusionguide.priors.fusionmatdb import load_prior_synthetic_vanadium
     df = load_prior_synthetic_vanadium()
     assert "dose_dpa" in df.columns
     assert "irradiation_temperature_C" in df.columns
@@ -73,7 +73,7 @@ def test_synthetic_vanadium_prior_has_correct_columns():
 
 def test_campaign_with_synthetic_prior():
     """Campaign should accept synthetic vanadium prior without error."""
-    from fusionbal.priors.fusionmatdb import load_prior_synthetic_vanadium
+    from fusionguide.priors.fusionmatdb import load_prior_synthetic_vanadium
     prior = load_prior_synthetic_vanadium()
     campaign = FusionCampaign(
         name="test_prior",

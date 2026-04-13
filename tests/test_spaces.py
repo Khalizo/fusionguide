@@ -1,6 +1,6 @@
 import pytest
-from fusionbal.spaces.vanadium_alloy import VanadiumAlloySpace
-from fusionbal.spaces.ceramic_insulator import CeramicInsulatorSpace
+from fusionguide.spaces.vanadium_alloy import VanadiumAlloySpace
+from fusionguide.spaces.ceramic_insulator import CeramicInsulatorSpace
 
 
 def test_vanadium_alloy_space_returns_list():
@@ -35,18 +35,18 @@ def test_vanadium_alloy_dose_bounds():
 
 
 def test_yield_strength_target_minimizes_false():
-    from fusionbal.targets.mechanical import YieldStrengthTarget
+    from fusionguide.targets.mechanical import YieldStrengthTarget
     target = YieldStrengthTarget()
     assert target.minimize is False
 
 
 def test_yield_strength_delta_target_minimizes_true():
-    from fusionbal.targets.mechanical import YieldStrengthDeltaTarget
+    from fusionguide.targets.mechanical import YieldStrengthDeltaTarget
     target = YieldStrengthDeltaTarget()
     assert target.minimize is True
 
 
 def test_dielectric_strength_target_minimizes_false():
-    from fusionbal.targets.mechanical import DielectricStrengthTarget
+    from fusionguide.targets.mechanical import DielectricStrengthTarget
     target = DielectricStrengthTarget()
     assert target.minimize is False

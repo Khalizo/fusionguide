@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fusionbal"
+name = "fusionguide"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
@@ -19,7 +19,7 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["fusionbal*"]
+include = ["fusionguide*"]
 
 [project.scripts]
-fusionbal = "fusionbal.cli:main"
+fusionguide = "fusionguide.cli:main"

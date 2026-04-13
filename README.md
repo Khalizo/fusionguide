@@ -1,4 +1,4 @@
-# FusionBAL
+# FusionGuide
 
 **Bayesian Active Learning for fusion materials experiment planning.** Tells you which irradiation experiments to run next to characterise a material with the fewest possible reactor slots.
 
@@ -8,14 +8,14 @@ Built on BayBE (Merck, Apache 2.0) + BoTorch (Meta). The fusion-domain adaptatio
 
 ## The problem it solves
 
-A slot at HFIR costs ~$500k and has an 18-month queue. You have 15 experiment budget slots to characterise V-4Cr-4Ti yield strength across dose and temperature. Random sampling needs ~25 experiments to reach 15 MPa uncertainty. FusionBAL reaches it in ~9. That's the Digilab Bristol result for vanadium alloys — 30 samples → 9.
+A slot at HFIR costs ~$500k and has an 18-month queue. You have 15 experiment budget slots to characterise V-4Cr-4Ti yield strength across dose and temperature. Random sampling needs ~25 experiments to reach 15 MPa uncertainty. FusionGuide reaches it in ~9. That's the Digilab Bristol result for vanadium alloys — 30 samples → 9.
 
 ---
 
 ## Install
 
 ```bash
-cd fusionbal
+cd fusionguide
 pip install -e .
 ```
 
@@ -29,29 +29,29 @@ Requires Python 3.10+. BayBE and BoTorch install automatically.
 
 ```bash
 # Vanadium alloy irradiation campaign
-fusionbal recommend --material vanadium_alloy --n 3
+fusionguide recommend --material vanadium_alloy --n 3
 
 # Ceramic insulator (Helion programme)
-fusionbal recommend --material ceramic_insulator --n 3
+fusionguide recommend --material ceramic_insulator --n 3
 
 # Load prior data from FusionMatDB to warm-start the GP
-fusionbal recommend --material vanadium_alloy --n 3 --prior-parquet ../fusionmatdb/fusionmatdb_export.parquet
+fusionguide recommend --material vanadium_alloy --n 3 --prior-parquet ../fusionmatdb/fusionmatdb_export.parquet
 ```
 
 ### Find the right facility
 
 ```bash
 # What facilities can take 20 samples within 12 months for £200k?
-fusionbal facilities --timeline 12 --samples 20 --budget 200
+fusionguide facilities --timeline 12 --samples 20 --budget 200
 ```
 
 ### Python API
 
 ```python
-from fusionbal import FusionCampaign
-from fusionbal.spaces import VanadiumAlloySpace
-from fusionbal.targets import YieldStrengthTarget
-from fusionbal.priors import load_prior_synthetic_vanadium
+from fusionguide import FusionCampaign
+from fusionguide.spaces import VanadiumAlloySpace
+from fusionguide.targets import YieldStrengthTarget
+from fusionguide.priors import load_prior_synthetic_vanadium
 
 # Start a campaign — warm-start with FusionMatDB prior
 campaign = FusionCampaign(
@@ -85,7 +85,7 @@ campaign = FusionCampaign.load("v4crti_campaign.json")
 | `VanadiumAlloySpace` | V-4Cr-4Ti | dose_dpa, temperature, Cr/Ti wt%, neutron spectrum, test temp |
 | `CeramicInsulatorSpace` | Al₂O₃, MgAl₂O₄, AlN, SiC, BN, ZrO₂ | ceramic class, additive wt%, sintering temp, dose, test temp |
 
-Add more in `fusionbal/spaces/`.
+Add more in `fusionguide/spaces/`.
 
 ---
 
@@ -104,7 +104,7 @@ This means the GP isn't learning radiation hardening from scratch — it starts 
 ## Facility scheduler
 
 ```python
-from fusionbal.facility_scheduler import recommend_facility
+from fusionguide.facility_scheduler import recommend_facility
 
 recs = recommend_facility(timeline_months=12, n_samples=20, budget_relative=200.0)
 # Returns: HFIR (fidelity=85%, queue=12mo), ion_beam (fidelity=30%, queue=1mo), ...
@@ -117,7 +117,7 @@ Facilities modelled: HFIR, ATR, BOR-60, BR2, ion_beam, proton.
 ## Uncertainty map
 
 ```python
-from fusionbal.visualise.uncertainty_map import plot_uncertainty_map
+from fusionguide.visualise.uncertainty_map import plot_uncertainty_map
 
 # Shows where the GP is most uncertain — where to experiment next
 plot_uncertainty_map(campaign, output_path="uncertainty_map.html")

@@ -1,5 +1,5 @@
 """BayBE targets for fusion materials properties."""
-from fusionbal.targets.mechanical import (
+from fusionguide.targets.mechanical import (
     YieldStrengthTarget,
     DielectricStrengthTarget,
     YieldStrengthDeltaTarget,

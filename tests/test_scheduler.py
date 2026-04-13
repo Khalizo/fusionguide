@@ -1,5 +1,5 @@
 import pytest
-from fusionbal.facility_scheduler import recommend_facility, FacilityRecommendation
+from fusionguide.facility_scheduler import recommend_facility, FacilityRecommendation
 
 
 def test_recommend_excludes_long_queue():
