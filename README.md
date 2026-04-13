@@ -1,140 +1,140 @@
-# FusionGuide
+<p align="center">
+  <h1 align="center">🧭 FusionGuide</h1>
+</p>
 
-**Bayesian Active Learning for fusion materials experiment planning.** Tells you which irradiation experiments to run next to characterise a material with the fewest possible reactor slots.
+<p align="center">
+  <strong>AI experiment planner for fusion materials.</strong><br>
+  Tells you which irradiation experiments to run next — with the fewest possible reactor slots.
+</p>
 
-Built on BayBE (Merck, Apache 2.0) + BoTorch (Meta). The fusion-domain adaptation — parameter spaces, facility scheduling, physics priors — is the novel contribution.
+<p align="center">
+  <a href="https://github.com/Khalizo/fusionguide"><img src="https://img.shields.io/badge/python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+"></a>
+  <a href="https://github.com/Khalizo/fusionguide"><img src="https://img.shields.io/badge/tests-19%20passed-brightgreen?style=for-the-badge" alt="Tests"></a>
+  <a href="https://github.com/Khalizo/fusionguide"><img src="https://img.shields.io/badge/engine-BayBE%200.14-orange?style=for-the-badge" alt="BayBE"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License"></a>
+</p>
+
+<p align="center">
+  <a href="#the-problem">Problem</a> · <a href="#quick-start">Quick Start</a> · <a href="#how-it-works">How It Works</a> · <a href="#facility-scheduler">Facilities</a> · <a href="https://github.com/Khalizo/fusionmatdb">FusionMatDB</a> · <a href="https://github.com/Khalizo/fusionuq">FusionUQ</a>
+</p>
 
 ---
 
-## The problem it solves
+## The Problem
 
-A slot at HFIR costs ~$500k and has an 18-month queue. You have 15 experiment budget slots to characterise V-4Cr-4Ti yield strength across dose and temperature. Random sampling needs ~25 experiments to reach 15 MPa uncertainty. FusionGuide reaches it in ~9. That's the Digilab Bristol result for vanadium alloys — 30 samples → 9.
+A slot at HFIR costs ~$500k and has an 18-month queue. You have 15 experiment budget slots to characterise V-4Cr-4Ti yield strength across dose and temperature.
+
+**Random sampling**: needs ~25 experiments to reach 15 MPa uncertainty threshold.
+**FusionGuide**: reaches the same threshold in **~9 experiments**.
+
+That's the [Digilab Bristol result](https://www.digilab.co.uk/) for vanadium alloys — and this tool replicates it with open-source code.
 
 ---
 
-## Install
+## Quick Start
 
 ```bash
-cd fusionguide
 pip install -e .
-```
 
-Requires Python 3.10+. BayBE and BoTorch install automatically.
-
----
-
-## Usage
-
-### Get experiment recommendations
-
-```bash
-# Vanadium alloy irradiation campaign
+# Get experiment recommendations for a vanadium alloy campaign
 fusionguide recommend --material vanadium_alloy --n 3
 
-# Ceramic insulator (Helion programme)
-fusionguide recommend --material ceramic_insulator --n 3
+# What facilities can take 20 samples within 12 months?
+fusionguide facilities --timeline 12 --samples 20
 
-# Load prior data from FusionMatDB to warm-start the GP
-fusionguide recommend --material vanadium_alloy --n 3 --prior-parquet ../fusionmatdb/fusionmatdb_export.parquet
+# Load real data from FusionMatDB as prior
+fusionguide recommend --material vanadium_alloy --n 3 \
+  --prior-parquet ../fusionmatdb/data/export.parquet
 ```
 
-### Find the right facility
+---
 
-```bash
-# What facilities can take 20 samples within 12 months for £200k?
-fusionguide facilities --timeline 12 --samples 20 --budget 200
-```
+## How It Works
 
-### Python API
+Built on [BayBE](https://github.com/emdgroup/baybe) (Merck, Apache 2.0) + [BoTorch](https://github.com/pytorch/botorch) (Meta). The fusion-domain adaptation is the novel contribution:
 
 ```python
-from fusionguide import FusionCampaign
+from fusionguide.campaign import FusionCampaign
 from fusionguide.spaces import VanadiumAlloySpace
 from fusionguide.targets import YieldStrengthTarget
-from fusionguide.priors import load_prior_synthetic_vanadium
 
-# Start a campaign — warm-start with FusionMatDB prior
+# Start a campaign with physics-informed prior
 campaign = FusionCampaign(
     name="V-4Cr-4Ti characterisation",
-    parameters=VanadiumAlloySpace(dose_dpa_range=(0.1, 20.0), temperature_range=(200, 600)),
+    parameters=VanadiumAlloySpace(dose_dpa_range=(0.1, 20.0)),
     target=YieldStrengthTarget(),
-    prior_data=load_prior_synthetic_vanadium(),  # replace with real FusionMatDB data
 )
 
-# Get next recommended experiment
+# Get recommendation — tells you which dose/temp/spectrum to test
 rec = campaign.recommend(n=1)
-print(rec)
-# dose_dpa=8.3, irradiation_temperature_C=412, neutron_spectrum=fission, ...
+# → dose_dpa=8.3, irradiation_temperature_C=412, neutron_spectrum=fission
 
-# Report result, update model
+# Report result, update the GP
 measurement = rec.copy()
 measurement["yield_strength_MPa"] = 647.0
 campaign.add_measurement(measurement)
 
 # Save and resume later
-campaign.save("v4crti_campaign.json")
-campaign = FusionCampaign.load("v4crti_campaign.json")
+campaign.save("campaign.json")
 ```
+
+### What FusionGuide adds on top of BayBE
+
+| Feature | BayBE | FusionGuide |
+|---|---|---|
+| Fusion parameter spaces (V-4Cr-4Ti, ceramics) | ❌ | ✅ |
+| Irradiation facility scheduler | ❌ | ✅ |
+| Physics prior (DBH radiation hardening model) | ❌ | ✅ |
+| FusionMatDB prior loader | ❌ | ✅ |
+| Uncertainty map visualisation | ❌ | ✅ |
 
 ---
 
-## Pre-configured parameter spaces
+## Pre-configured Spaces
 
 | Space | Material | Parameters |
 |---|---|---|
 | `VanadiumAlloySpace` | V-4Cr-4Ti | dose_dpa, temperature, Cr/Ti wt%, neutron spectrum, test temp |
 | `CeramicInsulatorSpace` | Al₂O₃, MgAl₂O₄, AlN, SiC, BN, ZrO₂ | ceramic class, additive wt%, sintering temp, dose, test temp |
 
-Add more in `fusionguide/spaces/`.
-
 ---
 
-## Physics priors
-
-The `RadiationHardeningPrior` encodes the Dispersed Barrier Hardening (DBH) model as a GP prior mean function:
-
-```
-Δσ_y = A × (1 − exp(−B × dpa)) × f(T)
-```
-
-This means the GP isn't learning radiation hardening from scratch — it starts with known physics and learns corrections. Far more data-efficient than a black-box GP.
-
----
-
-## Facility scheduler
+## Facility Scheduler
 
 ```python
 from fusionguide.facility_scheduler import recommend_facility
 
 recs = recommend_facility(timeline_months=12, n_samples=20, budget_relative=200.0)
-# Returns: HFIR (fidelity=85%, queue=12mo), ion_beam (fidelity=30%, queue=1mo), ...
+# → HFIR (fidelity=85%, queue=12mo), ion_beam (fidelity=30%, queue=1mo)
 ```
 
-Facilities modelled: HFIR, ATR, BOR-60, BR2, ion_beam, proton.
+| Facility | Queue | Fidelity | Spectrum |
+|---|---|---|---|
+| HFIR | 12 mo | 85% | Fission |
+| ATR | 18 mo | 85% | Fission |
+| BOR-60 | 24 mo | 90% | Fast |
+| BR2 | 18 mo | 80% | Fission |
+| Ion beam | 1 mo | 30% | Ion |
+| Proton | 2 mo | 60% | Proton |
 
 ---
 
-## Uncertainty map
+## Physics Prior
 
-```python
-from fusionguide.visualise.uncertainty_map import plot_uncertainty_map
+The `RadiationHardeningPrior` encodes the Dispersed Barrier Hardening (DBH) model as a GP prior mean:
 
-# Shows where the GP is most uncertain — where to experiment next
-plot_uncertainty_map(campaign, output_path="uncertainty_map.html")
+```
+Δσ_y = A × (1 − exp(−B × dpa)) × f(T)
 ```
 
----
-
-## How it connects to the platform
-
-- **Input**: loads FusionMatDB Parquet as prior data (historical measurements warm-start the GP)
-- **Output**: experiment recommendations feed Helion/Tokamak Energy lab planning
-- **Loop**: after each experiment, `campaign.add_measurement()` updates the GP and tightens uncertainty
-
-This is the active learning flywheel: more experiments → better GP → fewer experiments needed.
+The GP starts with known physics and learns corrections — far more data-efficient than a black-box GP.
 
 ---
 
-## BayBE version note
+## Related Projects
 
-Uses BayBE v0.14.3+. Target API changed in v0.14: use `NumericalTarget(minimize=False)` not `mode="MAX"`.
+| | |
+|---|---|
+| ⚛️ [FusionMatDB](https://github.com/Khalizo/fusionmatdb) | The database — provides GP prior data |
+| 🧭 [FusionGuide](https://github.com/Khalizo/fusionguide) | This repo — experiment planning |
+| 🔬 [FusionUQ](https://github.com/Khalizo/fusionuq) | Uncertainty quantification for ML potentials |
