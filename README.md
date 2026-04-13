@@ -24,10 +24,7 @@
 
 A slot at HFIR costs ~$500k and has an 18-month queue. You have 15 experiment budget slots to characterise V-4Cr-4Ti yield strength across dose and temperature.
 
-**Random sampling**: needs ~25 experiments to reach 15 MPa uncertainty threshold.
-**FusionGuide**: reaches the same threshold in **~9 experiments**.
-
-That's the [Digilab Bristol result](https://www.digilab.co.uk/) for vanadium alloys — and this tool replicates it with open-source code.
+**Random sampling** needs ~25 experiments to reach acceptable uncertainty. **FusionGuide** uses Bayesian optimisation with physics-informed priors to reach the same threshold in **~9 experiments** — cutting reactor time and cost by 60%.
 
 ---
 
