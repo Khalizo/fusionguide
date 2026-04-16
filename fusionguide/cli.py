@@ -7,7 +7,7 @@ def cli():
 
 
 @cli.command()
-@click.option("--material", type=click.Choice(["vanadium_alloy", "ceramic_insulator"]), default="vanadium_alloy")
+@click.option("--material", type=click.Choice(["vanadium_alloy", "ceramic_insulator", "rafm_steel"]), default="vanadium_alloy")
 @click.option("--n", default=3, help="Number of recommendations")
 @click.option("--prior-parquet", default=None, help="Path to FusionMatDB Parquet export")
 def recommend(material, n, prior_parquet):
@@ -16,10 +16,14 @@ def recommend(material, n, prior_parquet):
     from fusionguide.campaign import FusionCampaign
     from fusionguide.spaces.vanadium_alloy import VanadiumAlloySpace
     from fusionguide.spaces.ceramic_insulator import CeramicInsulatorSpace
+    from fusionguide.spaces.rafm_steel import RAFMSteelSpace
     from fusionguide.targets.mechanical import YieldStrengthTarget, DielectricStrengthTarget
 
     if material == "vanadium_alloy":
         params = VanadiumAlloySpace()
+        target = YieldStrengthTarget()
+    elif material == "rafm_steel":
+        params = RAFMSteelSpace()
         target = YieldStrengthTarget()
     else:
         params = CeramicInsulatorSpace()
