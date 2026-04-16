@@ -50,3 +50,18 @@ def test_dielectric_strength_target_minimizes_false():
     from fusionguide.targets.mechanical import DielectricStrengthTarget
     target = DielectricStrengthTarget()
     assert target.minimize is False
+
+
+def test_vanadium_alloy_space_has_spectrum_fidelity():
+    params = VanadiumAlloySpace()
+    names = [p.name for p in params]
+    assert "spectrum_fidelity" in names
+
+
+def test_spectrum_fidelity_bounds():
+    from baybe.parameters import NumericalContinuousParameter
+    params = VanadiumAlloySpace()
+    fidelity_param = next(p for p in params if p.name == "spectrum_fidelity")
+    assert isinstance(fidelity_param, NumericalContinuousParameter)
+    assert fidelity_param.bounds.lower == 0.0
+    assert fidelity_param.bounds.upper == 1.0

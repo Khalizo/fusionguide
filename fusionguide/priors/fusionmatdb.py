@@ -28,10 +28,15 @@ def load_prior_synthetic_vanadium() -> pd.DataFrame:
 
     Includes all VanadiumAlloySpace parameter columns with representative defaults.
     """
-    return pd.DataFrame([
+    from fusionguide.spaces.vanadium_alloy import SPECTRUM_FIDELITY
+
+    rows = [
         {"dose_dpa": 3.0,  "irradiation_temperature_C": 400.0, "chromium_wt_pct": 4.0, "titanium_wt_pct": 4.0, "neutron_spectrum": "fission", "test_temperature_C": "400", "yield_strength_MPa": 612.0},
         {"dose_dpa": 5.0,  "irradiation_temperature_C": 400.0, "chromium_wt_pct": 4.0, "titanium_wt_pct": 4.0, "neutron_spectrum": "fission", "test_temperature_C": "400", "yield_strength_MPa": 650.0},
         {"dose_dpa": 10.0, "irradiation_temperature_C": 400.0, "chromium_wt_pct": 4.0, "titanium_wt_pct": 4.0, "neutron_spectrum": "fission", "test_temperature_C": "400", "yield_strength_MPa": 680.0},
         {"dose_dpa": 3.0,  "irradiation_temperature_C": 600.0, "chromium_wt_pct": 4.0, "titanium_wt_pct": 4.0, "neutron_spectrum": "fission", "test_temperature_C": "600", "yield_strength_MPa": 580.0},
         {"dose_dpa": 5.0,  "irradiation_temperature_C": 600.0, "chromium_wt_pct": 4.0, "titanium_wt_pct": 4.0, "neutron_spectrum": "fission", "test_temperature_C": "600", "yield_strength_MPa": 610.0},
-    ])
+    ]
+    for row in rows:
+        row["spectrum_fidelity"] = SPECTRUM_FIDELITY[row["neutron_spectrum"]]
+    return pd.DataFrame(rows)
