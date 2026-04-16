@@ -84,3 +84,30 @@ def test_campaign_with_synthetic_prior():
     assert campaign.n_measurements == 5
     rec = campaign.recommend(n=1)
     assert isinstance(rec, pd.DataFrame)
+
+
+def test_vanadium_prior_lower_baseline_than_tungsten():
+    from fusionguide.priors.physics_priors import RadiationHardeningPrior
+    w = RadiationHardeningPrior.tungsten()
+    v = RadiationHardeningPrior.vanadium_alloy()
+    assert v.baseline_mpa < w.baseline_mpa
+
+
+def test_rafm_prior_higher_amplitude_than_vanadium():
+    from fusionguide.priors.physics_priors import RadiationHardeningPrior
+    rafm = RadiationHardeningPrior.rafm_steel()
+    v = RadiationHardeningPrior.vanadium_alloy()
+    assert rafm.A_MPa > v.A_MPa
+
+
+def test_custom_prior_parameters():
+    from fusionguide.priors.physics_priors import RadiationHardeningPrior
+    prior = RadiationHardeningPrior(
+        A_MPa=100.0, B_inv_dpa=0.3, T_ref_C=250.0, baseline_mpa=400.0
+    )
+    assert prior.A_MPa == 100.0
+    assert prior.B_inv_dpa == 0.3
+    assert prior.T_ref_C == 250.0
+    assert prior.baseline_mpa == 400.0
+    y = prior.predict_yield_irradiated(dose_dpa=5.0, temperature_C=250.0)
+    assert y > 400.0
