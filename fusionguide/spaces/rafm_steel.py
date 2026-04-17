@@ -35,6 +35,10 @@ def RAFMSteelSpace(
             values=["fission", "DT_fusion", "ion_implantation"],
             encoding="OHE",
         ),
+        NumericalContinuousParameter(
+            name="spectrum_fidelity",
+            bounds=(0.0, 1.0),
+        ),
         CategoricalParameter(
             name="test_temperature_C",
             values=["25", "200", "300", "400", "550"],
