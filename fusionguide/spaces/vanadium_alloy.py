@@ -2,6 +2,16 @@
 from __future__ import annotations
 from baybe.parameters import NumericalContinuousParameter, CategoricalParameter
 
+# Default fidelity scores encoding how representative each neutron spectrum
+# is of actual DT fusion conditions.  Gives the GP a continuous dimension
+# so that fission-fusion similarity is captured (instead of treating all
+# spectra as orthogonal via one-hot encoding).
+SPECTRUM_FIDELITY: dict[str, float] = {
+    "DT_fusion": 1.0,
+    "fission": 0.85,
+    "ion_implantation": 0.30,
+}
+
 
 def VanadiumAlloySpace(
     dose_dpa_range: tuple[float, float] = (0.01, 50.0),
@@ -29,6 +39,10 @@ def VanadiumAlloySpace(
             name="neutron_spectrum",
             values=["fission", "DT_fusion", "ion_implantation"],
             encoding="OHE",
+        ),
+        NumericalContinuousParameter(
+            name="spectrum_fidelity",
+            bounds=(0.0, 1.0),
         ),
         CategoricalParameter(
             name="test_temperature_C",
