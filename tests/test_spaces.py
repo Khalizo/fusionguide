@@ -28,8 +28,6 @@ def test_vanadium_alloy_dose_bounds():
     params = VanadiumAlloySpace(dose_dpa_range=(0.5, 30.0))
     dose_param = next(p for p in params if p.name == "dose_dpa")
     assert isinstance(dose_param, NumericalContinuousParameter)
-    # BayBE stores bounds in a Bounds object — check via to_dict or bounds attribute
-    # Access the lower/upper via the bounds object
     assert dose_param.bounds.lower == 0.5
     assert dose_param.bounds.upper == 30.0
 
@@ -52,16 +50,26 @@ def test_dielectric_strength_target_minimizes_false():
     assert target.minimize is False
 
 
-def test_vanadium_alloy_space_has_spectrum_fidelity():
-    params = VanadiumAlloySpace()
+def test_rafm_steel_space_returns_list():
+    from fusionguide.spaces.rafm_steel import RAFMSteelSpace
+    params = RAFMSteelSpace()
+    assert isinstance(params, list)
+    assert len(params) > 0
+
+
+def test_rafm_steel_space_has_dose_and_temp():
+    from fusionguide.spaces.rafm_steel import RAFMSteelSpace
+    params = RAFMSteelSpace()
     names = [p.name for p in params]
-    assert "spectrum_fidelity" in names
+    assert "dose_dpa" in names
+    assert "irradiation_temperature_C" in names
 
 
-def test_spectrum_fidelity_bounds():
+def test_rafm_steel_dose_bounds():
     from baybe.parameters import NumericalContinuousParameter
-    params = VanadiumAlloySpace()
-    fidelity_param = next(p for p in params if p.name == "spectrum_fidelity")
-    assert isinstance(fidelity_param, NumericalContinuousParameter)
-    assert fidelity_param.bounds.lower == 0.0
-    assert fidelity_param.bounds.upper == 1.0
+    from fusionguide.spaces.rafm_steel import RAFMSteelSpace
+    params = RAFMSteelSpace(dose_dpa_range=(1.0, 60.0))
+    dose_param = next(p for p in params if p.name == "dose_dpa")
+    assert isinstance(dose_param, NumericalContinuousParameter)
+    assert dose_param.bounds.lower == 1.0
+    assert dose_param.bounds.upper == 60.0
